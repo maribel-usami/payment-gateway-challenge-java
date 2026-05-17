@@ -20,9 +20,6 @@ public class PaymentGatewayController {
 
   private static final Logger LOG = LoggerFactory.getLogger(PaymentGatewayController.class);
 
-  /**
-   * Service name for logging
-   */
   private static final String SERVICE_NAME = "Payment Gateway";
 
   private final PaymentGatewayService paymentGatewayService;
@@ -42,17 +39,24 @@ public class PaymentGatewayController {
   @PostMapping("/payment")
   public ResponseEntity<PostPaymentResponse> postPayment(@RequestBody PostPaymentRequest paymentRequest) {
     LOG.info(
-        "[{}][Process payment][POST {}][requestParams: cardNumberLastFour={}, expiryMonth={}, expiryYear={}, currency={}, amount={}]",
+        "[{}][Process payment][POST {}][requestParams: {}]",
         SERVICE_NAME,
         "/payment",
-        CardUtils.getCardNumberLastFour(paymentRequest.getCardNumber()),
-        paymentRequest.getExpiryMonth(),
-        paymentRequest.getExpiryYear(),
-        paymentRequest.getCurrency(),
-        paymentRequest.getAmount());
+        toSanitizedLogParams(paymentRequest));
     PostPaymentResponse response = paymentGatewayService.processPayment(paymentRequest);
     LOG.info("[{}][Process payment SUCCESS][Response: paymentId={}, status={}]",
         SERVICE_NAME, response.getId(), response.getStatus());
     return new ResponseEntity<>(response, HttpStatus.CREATED);
+  }
+
+  private String toSanitizedLogParams(PostPaymentRequest paymentRequest) {
+    if (paymentRequest == null) {
+      return "null";
+    }
+    return "cardNumberLastFour=" + CardUtils.getCardNumberLastFour(paymentRequest.getCardNumber())
+        + ", expiryMonth=" + paymentRequest.getExpiryMonth()
+        + ", expiryYear=" + paymentRequest.getExpiryYear()
+        + ", currency=" + paymentRequest.getCurrency()
+        + ", amount=" + paymentRequest.getAmount();
   }
 }

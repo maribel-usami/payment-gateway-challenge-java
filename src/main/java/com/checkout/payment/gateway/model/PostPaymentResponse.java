@@ -69,9 +69,6 @@ public class PostPaymentResponse {
     this.amount = amount;
   }
 
-  /**
-   * @return The information of the payment response.
-   */
   @Override
   public String toString() {
     return "GetPaymentResponse{" +

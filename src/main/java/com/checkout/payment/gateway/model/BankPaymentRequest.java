@@ -3,7 +3,7 @@ package com.checkout.payment.gateway.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Request of payment to bank
+ * Request payload sent from the gateway to the bank simulator.
  */
 public class BankPaymentRequest {
 
@@ -16,8 +16,9 @@ public class BankPaymentRequest {
   private String cvv;
 
   /**
-   * Constructor, with payment request object from merchant
-   * @param paymentRequest
+   * Builds the bank request from the merchant-facing gateway request.
+   *
+   * @param paymentRequest validated gateway request
    */
   public BankPaymentRequest(PostPaymentRequest paymentRequest) {
     this.cardNumber = paymentRequest.getCardNumber();

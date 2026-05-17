@@ -3,7 +3,7 @@ package com.checkout.payment.gateway.enums;
 import java.util.Arrays;
 
 /**
- * Currency types surpported for now
+ * Currencies currently supported by the gateway.
  */
 public enum Currency {
   GBP,
@@ -11,9 +11,7 @@ public enum Currency {
   EUR;
 
   /**
-   * Check the input currency whether supported or not
-   * @param currency
-   * @return boolean
+   * Checks whether the supplied currency code is supported.
    */
   public static boolean isSupported(String currency) {
     return Arrays.stream(values())

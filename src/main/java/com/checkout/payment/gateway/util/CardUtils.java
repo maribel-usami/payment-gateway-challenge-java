@@ -1,7 +1,7 @@
 package com.checkout.payment.gateway.util;
 
 /**
- * Util class dealing with card info
+ * Utility methods for card data handling.
  */
 public final class CardUtils {
 
@@ -9,9 +9,7 @@ public final class CardUtils {
   }
 
   /**
-   * Get last four digits of card number
-   * @param cardNumber
-   * @return lastFourDigit
+   * Returns the last four characters of a card number, or an empty string when unavailable.
    */
   public static String getCardNumberLastFour(String cardNumber) {
     if (cardNumber == null || cardNumber.length() < 4) {
@@ -20,11 +18,4 @@ public final class CardUtils {
     return cardNumber.substring(cardNumber.length() - 4);
   }
 
-  public static int getCardNumberLastFourAsInt(String cardNumber) {
-    String lastFour = getCardNumberLastFour(cardNumber);
-    if (lastFour.isEmpty()) {
-      return 0;
-    }
-    return Integer.parseInt(lastFour);
-  }
 }
