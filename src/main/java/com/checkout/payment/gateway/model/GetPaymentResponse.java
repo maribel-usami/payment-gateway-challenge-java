@@ -10,7 +10,7 @@ public class GetPaymentResponse {
   private int expiryMonth;
   private int expiryYear;
   private String currency;
-  private int amount;
+  private long amount;
 
   public UUID getId() {
     return id;
@@ -60,11 +60,11 @@ public class GetPaymentResponse {
     this.currency = currency;
   }
 
-  public int getAmount() {
+  public long getAmount() {
     return amount;
   }
 
-  public void setAmount(int amount) {
+  public void setAmount(long amount) {
     this.amount = amount;
   }
 

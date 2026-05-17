@@ -12,7 +12,7 @@ public class PostPaymentRequest implements Serializable {
   @JsonProperty("expiry_year")
   private int expiryYear;
   private String currency;
-  private int amount;
+  private long amount;
   private String cvv;
 
   public String getCardNumber() {
@@ -47,11 +47,11 @@ public class PostPaymentRequest implements Serializable {
     this.currency = currency;
   }
 
-  public int getAmount() {
+  public long getAmount() {
     return amount;
   }
 
-  public void setAmount(int amount) {
+  public void setAmount(long amount) {
     this.amount = amount;
   }
 
