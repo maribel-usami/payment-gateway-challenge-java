@@ -1,19 +1,33 @@
 package com.checkout.payment.gateway.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
 
-public class PostPaymentRequest implements Serializable {
+/**
+ * Request of payment to bank
+ */
+public class BankPaymentRequest {
 
   @JsonProperty("card_number")
   private String cardNumber;
-  @JsonProperty("expiry_month")
-  private int expiryMonth;
-  @JsonProperty("expiry_year")
-  private int expiryYear;
+  @JsonProperty("expiry_date")
+  private String expiryDate;
   private String currency;
   private int amount;
   private String cvv;
+
+  /**
+   * Constructor, with payment request object from merchant
+   * @param paymentRequest
+   */
+  public BankPaymentRequest(PostPaymentRequest paymentRequest) {
+    this.cardNumber = paymentRequest.getCardNumber();
+    this.expiryDate = String.format("%02d/%d",
+        paymentRequest.getExpiryMonth(),
+        paymentRequest.getExpiryYear());
+    this.currency = paymentRequest.getCurrency();
+    this.amount = paymentRequest.getAmount();
+    this.cvv = paymentRequest.getCvv();
+  }
 
   public String getCardNumber() {
     return cardNumber;
@@ -23,20 +37,12 @@ public class PostPaymentRequest implements Serializable {
     this.cardNumber = cardNumber;
   }
 
-  public int getExpiryMonth() {
-    return expiryMonth;
+  public String getExpiryDate() {
+    return expiryDate;
   }
 
-  public void setExpiryMonth(int expiryMonth) {
-    this.expiryMonth = expiryMonth;
-  }
-
-  public int getExpiryYear() {
-    return expiryYear;
-  }
-
-  public void setExpiryYear(int expiryYear) {
-    this.expiryYear = expiryYear;
+  public void setExpiryDate(String expiryDate) {
+    this.expiryDate = expiryDate;
   }
 
   public String getCurrency() {
@@ -61,15 +67,5 @@ public class PostPaymentRequest implements Serializable {
 
   public void setCvv(String cvv) {
     this.cvv = cvv;
-  }
-
-  @Override
-  public String toString() {
-    return "PostPaymentRequest{" +
-        ", expiryMonth=" + expiryMonth +
-        ", expiryYear=" + expiryYear +
-        ", currency='" + currency + '\'' +
-        ", amount=" + amount +
-        '}';
   }
 }
