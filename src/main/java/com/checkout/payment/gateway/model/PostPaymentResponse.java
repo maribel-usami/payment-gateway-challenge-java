@@ -6,11 +6,11 @@ import java.util.UUID;
 public class PostPaymentResponse {
   private UUID id;
   private PaymentStatus status;
-  private int cardNumberLastFour;
+  private String cardNumberLastFour;
   private int expiryMonth;
   private int expiryYear;
   private String currency;
-  private int amount;
+  private long amount;
 
 
   public UUID getId() {
@@ -29,11 +29,11 @@ public class PostPaymentResponse {
     this.status = status;
   }
 
-  public int getCardNumberLastFour() {
+  public String getCardNumberLastFour() {
     return cardNumberLastFour;
   }
 
-  public void setCardNumberLastFour(int cardNumberLastFour) {
+  public void setCardNumberLastFour(String cardNumberLastFour) {
     this.cardNumberLastFour = cardNumberLastFour;
   }
 
@@ -61,14 +61,17 @@ public class PostPaymentResponse {
     this.currency = currency;
   }
 
-  public int getAmount() {
+  public long getAmount() {
     return amount;
   }
 
-  public void setAmount(int amount) {
+  public void setAmount(long amount) {
     this.amount = amount;
   }
 
+  /**
+   * @return The information of the payment response.
+   */
   @Override
   public String toString() {
     return "GetPaymentResponse{" +

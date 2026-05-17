@@ -12,7 +12,7 @@ public class BankPaymentRequest {
   @JsonProperty("expiry_date")
   private String expiryDate;
   private String currency;
-  private int amount;
+  private long amount;
   private String cvv;
 
   /**
@@ -53,11 +53,11 @@ public class BankPaymentRequest {
     this.currency = currency;
   }
 
-  public int getAmount() {
+  public long getAmount() {
     return amount;
   }
 
-  public void setAmount(int amount) {
+  public void setAmount(long amount) {
     this.amount = amount;
   }
 
