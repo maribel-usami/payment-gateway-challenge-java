@@ -256,6 +256,8 @@ The current tests cover:
 - Malformed request bodies
 - Invalid payment requests being rejected
 - Mapping authorized and declined bank responses
+- Mapping bank client failures to rejected payments
+- Preserving leading zeros in card last-four responses
 - Retrieving a payment after it has been created
 
 ## Key Design Considerations and Assumptions
