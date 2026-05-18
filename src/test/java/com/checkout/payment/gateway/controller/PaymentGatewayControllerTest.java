@@ -1,6 +1,7 @@
 package com.checkout.payment.gateway.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -117,6 +118,17 @@ class PaymentGatewayControllerTest {
           .andExpect(jsonPath("$.expiryYear").value(2030))
           .andExpect(jsonPath("$.currency").value("GBP"))
           .andExpect(jsonPath("$.amount").value(100));
+      verifyNoInteractions(bankClient);
+    }
+
+    @Test
+    void whenCardNumberIsTooLongThenPaymentIsRejected() throws Exception {
+      performCreatePayment(paymentRequest("12345678901234567890", 12, 2030, "GBP", 100, "123"))
+          .andExpect(status().isCreated())
+          .andExpect(jsonPath("$.id").exists())
+          .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()))
+          .andExpect(jsonPath("$.cardNumberLastFour").value(""));
+      verifyNoInteractions(bankClient);
     }
 
     @Test
@@ -126,6 +138,7 @@ class PaymentGatewayControllerTest {
           .andExpect(jsonPath("$.id").exists())
           .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()))
           .andExpect(jsonPath("$.cardNumberLastFour").value(""));
+      verifyNoInteractions(bankClient);
     }
 
     @Test
@@ -135,6 +148,94 @@ class PaymentGatewayControllerTest {
           .andExpect(jsonPath("$.id").exists())
           .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()))
           .andExpect(jsonPath("$.expiryYear").value(1000000000));
+      verifyNoInteractions(bankClient);
+    }
+
+    @Test
+    void whenExpiryMonthIsZeroThenPaymentIsRejected() throws Exception {
+      performCreatePayment(paymentRequest(VALID_AUTHORIZED_CARD, 0, 2030, "GBP", 100, "123"))
+          .andExpect(status().isCreated())
+          .andExpect(jsonPath("$.id").exists())
+          .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()))
+          .andExpect(jsonPath("$.expiryMonth").value(0));
+      verifyNoInteractions(bankClient);
+    }
+
+    @Test
+    void whenExpiryMonthIsThirteenThenPaymentIsRejected() throws Exception {
+      performCreatePayment(paymentRequest(VALID_AUTHORIZED_CARD, 13, 2030, "GBP", 100, "123"))
+          .andExpect(status().isCreated())
+          .andExpect(jsonPath("$.id").exists())
+          .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()))
+          .andExpect(jsonPath("$.expiryMonth").value(13));
+      verifyNoInteractions(bankClient);
+    }
+
+    @Test
+    void whenCardIsExpiredThenPaymentIsRejected() throws Exception {
+      performCreatePayment(paymentRequest(VALID_AUTHORIZED_CARD, 12, 2020, "GBP", 100, "123"))
+          .andExpect(status().isCreated())
+          .andExpect(jsonPath("$.id").exists())
+          .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()))
+          .andExpect(jsonPath("$.expiryYear").value(2020));
+      verifyNoInteractions(bankClient);
+    }
+
+    @Test
+    void whenCurrencyIsUnsupportedThenPaymentIsRejected() throws Exception {
+      performCreatePayment(paymentRequest(VALID_AUTHORIZED_CARD, 12, 2030, "JPY", 100, "123"))
+          .andExpect(status().isCreated())
+          .andExpect(jsonPath("$.id").exists())
+          .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()))
+          .andExpect(jsonPath("$.currency").value("JPY"));
+      verifyNoInteractions(bankClient);
+    }
+
+    @Test
+    void whenAmountIsZeroThenPaymentIsRejected() throws Exception {
+      performCreatePayment(paymentRequest(VALID_AUTHORIZED_CARD, 12, 2030, "GBP", 0, "123"))
+          .andExpect(status().isCreated())
+          .andExpect(jsonPath("$.id").exists())
+          .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()))
+          .andExpect(jsonPath("$.amount").value(0));
+      verifyNoInteractions(bankClient);
+    }
+
+    @Test
+    void whenAmountIsNegativeThenPaymentIsRejected() throws Exception {
+      performCreatePayment(paymentRequest(VALID_AUTHORIZED_CARD, 12, 2030, "GBP", -1, "123"))
+          .andExpect(status().isCreated())
+          .andExpect(jsonPath("$.id").exists())
+          .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()))
+          .andExpect(jsonPath("$.amount").value(-1));
+      verifyNoInteractions(bankClient);
+    }
+
+    @Test
+    void whenCvvIsTooShortThenPaymentIsRejected() throws Exception {
+      performCreatePayment(paymentRequest(VALID_AUTHORIZED_CARD, 12, 2030, "GBP", 100, "12"))
+          .andExpect(status().isCreated())
+          .andExpect(jsonPath("$.id").exists())
+          .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()));
+      verifyNoInteractions(bankClient);
+    }
+
+    @Test
+    void whenCvvIsTooLongThenPaymentIsRejected() throws Exception {
+      performCreatePayment(paymentRequest(VALID_AUTHORIZED_CARD, 12, 2030, "GBP", 100, "12345"))
+          .andExpect(status().isCreated())
+          .andExpect(jsonPath("$.id").exists())
+          .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()));
+      verifyNoInteractions(bankClient);
+    }
+
+    @Test
+    void whenCvvHasNonNumericCharactersThenPaymentIsRejected() throws Exception {
+      performCreatePayment(paymentRequest(VALID_AUTHORIZED_CARD, 12, 2030, "GBP", 100, "12a"))
+          .andExpect(status().isCreated())
+          .andExpect(jsonPath("$.id").exists())
+          .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()));
+      verifyNoInteractions(bankClient);
     }
   }
 
@@ -178,6 +279,30 @@ class PaymentGatewayControllerTest {
           .andExpect(jsonPath("$.id").exists())
           .andExpect(jsonPath("$.status").value(PaymentStatus.REJECTED.getName()))
           .andExpect(jsonPath("$.cardNumberLastFour").value("8877"));
+    }
+
+    @Test
+    void whenCardNumberHasMinimumValidLengthThenPaymentCanBeAuthorized() throws Exception {
+      when(bankClient.processPayment(any(PostPaymentRequest.class)))
+          .thenReturn(new BankPaymentResponse(true, UUID.randomUUID().toString()));
+
+      performCreatePayment(validPaymentRequest("12345678901237"))
+          .andExpect(status().isCreated())
+          .andExpect(jsonPath("$.id").exists())
+          .andExpect(jsonPath("$.status").value(PaymentStatus.AUTHORIZED.getName()))
+          .andExpect(jsonPath("$.cardNumberLastFour").value("1237"));
+    }
+
+    @Test
+    void whenCardNumberHasMaximumValidLengthThenPaymentCanBeAuthorized() throws Exception {
+      when(bankClient.processPayment(any(PostPaymentRequest.class)))
+          .thenReturn(new BankPaymentResponse(true, UUID.randomUUID().toString()));
+
+      performCreatePayment(validPaymentRequest("1234567890123456787"))
+          .andExpect(status().isCreated())
+          .andExpect(jsonPath("$.id").exists())
+          .andExpect(jsonPath("$.status").value(PaymentStatus.AUTHORIZED.getName()))
+          .andExpect(jsonPath("$.cardNumberLastFour").value("6787"));
     }
   }
 

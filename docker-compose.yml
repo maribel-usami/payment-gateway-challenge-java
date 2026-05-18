@@ -1,6 +1,15 @@
-version: "3.8"
-
 services:
+  payment_gateway:
+    container_name: payment_gateway
+    build:
+      context: .
+    ports:
+      - "8090:8090"
+    environment:
+      BANK_PAYMENTS_URL: http://bank_simulator:8080/payments
+    depends_on:
+      - bank_simulator
+
   bank_simulator:
     container_name: bank_simulator
     image: bbyars/mountebank:2.8.1
