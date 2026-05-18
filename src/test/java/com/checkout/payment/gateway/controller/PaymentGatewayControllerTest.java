@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.checkout.payment.gateway.client.BankClient;
 import com.checkout.payment.gateway.enums.PaymentStatus;
+import com.checkout.payment.gateway.exception.BankClientException;
 import com.checkout.payment.gateway.model.BankPaymentResponse;
 import com.checkout.payment.gateway.model.PostPaymentRequest;
 import com.checkout.payment.gateway.model.PostPaymentResponse;
@@ -272,7 +273,8 @@ class PaymentGatewayControllerTest {
 
     @Test
     void whenBankClientFailsThenPaymentIsRejected() throws Exception {
-      when(bankClient.processPayment(any(PostPaymentRequest.class))).thenReturn(null);
+      when(bankClient.processPayment(any(PostPaymentRequest.class)))
+          .thenThrow(new BankClientException("BANK_TIMEOUT", "Bank unavailable"));
 
       performCreatePayment(validPaymentRequest(VALID_AUTHORIZED_CARD))
           .andExpect(status().isCreated())

@@ -3,6 +3,7 @@ package com.checkout.payment.gateway.service;
 import com.checkout.payment.gateway.client.BankClient;
 import com.checkout.payment.gateway.enums.Currency;
 import com.checkout.payment.gateway.enums.PaymentStatus;
+import com.checkout.payment.gateway.exception.BankClientException;
 import com.checkout.payment.gateway.exception.EventProcessingException;
 import com.checkout.payment.gateway.model.BankPaymentResponse;
 import com.checkout.payment.gateway.model.PostPaymentRequest;
@@ -58,13 +59,14 @@ public class PaymentGatewayService {
       return response;
     }
 
-    BankPaymentResponse bankResponse = bankClient.processPayment(paymentRequest);
-    if (bankResponse == null) {
-      response.setStatus(PaymentStatus.REJECTED);
-    } else {
+    try {
+      BankPaymentResponse bankResponse = bankClient.processPayment(paymentRequest);
       response.setStatus(bankResponse.isAuthorized()
           ? PaymentStatus.AUTHORIZED
           : PaymentStatus.DECLINED);
+    } catch (BankClientException ex) {
+      LOG.warn("Bank authorization failed. code={}", ex.getCode(), ex);
+      response.setStatus(PaymentStatus.REJECTED);
     }
     paymentsRepository.save(response);
     return response;
